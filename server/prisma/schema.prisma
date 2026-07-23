@@ -1,0 +1,300 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  FREE_USER
+  PREMIUM_USER
+  ARTIST
+  MODERATOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum SubscriptionTier {
+  FREE
+  INDIVIDUAL_MONTHLY
+  INDIVIDUAL_YEARLY
+  FAMILY
+}
+
+model User {
+  id                String             @id @default(uuid())
+  email             String             @unique
+  passwordHash      String?
+  fullName          String
+  displayName       String
+  avatarUrl         String?
+  role              Role               @default(FREE_USER)
+  emailVerified     Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  artistProfile     Artist?
+  playlists         Playlist[]
+  likes             Like[]
+  follows           Follow[]           @relation("UserFollows")
+  following         Follow[]           @relation("UserFollowing")
+  history           ListeningHistory[]
+  subscriptions     Subscription[]
+  payments          Payment[]
+  notifications     Notification[]
+  devices           Device[]
+  comments          Comment[]
+  sessions          Session[]
+
+  @@index([email])
+}
+
+model Artist {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  bio              String?
+  headerImageUrl   String?
+  verified         Boolean  @default(false)
+  monthlyListeners Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  albums           Album[]
+  songs            Song[]
+
+  @@index([userId])
+}
+
+model Genre {
+  id       String      @id @default(uuid())
+  name     String      @unique
+  colorHex String      @default("#1DB954")
+  iconUrl  String?
+  songs    SongGenre[]
+}
+
+model Album {
+  id          String   @id @default(uuid())
+  title       String
+  coverArtUrl String
+  releaseDate DateTime
+  artistId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  artist      Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  songs       Song[]
+
+  @@index([artistId])
+  @@index([title])
+}
+
+model Song {
+  id              String             @id @default(uuid())
+  title           String
+  durationSeconds Int
+  audioUrl        String
+  hlsPlaylistUrl  String?
+  explicit        Boolean            @default(false)
+  playCount       BigInt             @default(0)
+  artistId        String
+  albumId         String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  artist          Artist             @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  album           Album?             @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  genres          SongGenre[]
+  playlistSongs   PlaylistSong[]
+  likes           Like[]
+  history         ListeningHistory[]
+  lyrics          Lyrics?
+  comments        Comment[]
+
+  @@index([artistId])
+  @@index([albumId])
+  @@index([title])
+}
+
+model SongGenre {
+  songId  String
+  genreId String
+
+  song    Song  @relation(fields: [songId], references: [id], onDelete: Cascade)
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([songId, genreId])
+}
+
+model Playlist {
+  id              String         @id @default(uuid())
+  title           String
+  description     String?
+  coverArtUrl     String?
+  isPublic        Boolean        @default(true)
+  isCollaborative Boolean        @default(false)
+  ownerId         String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  owner           User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  songs           PlaylistSong[]
+  likes           Like[]
+
+  @@index([ownerId])
+  @@index([title])
+}
+
+model PlaylistSong {
+  id         String   @id @default(uuid())
+  playlistId String
+  songId     String
+  addedAt    DateTime @default(now())
+  position   Int
+
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song       Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, songId])
+  @@index([playlistId, position])
+}
+
+model Like {
+  id         String    @id @default(uuid())
+  userId     String
+  songId     String?
+  playlistId String?
+  createdAt  DateTime  @default(now())
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song       Song?     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  playlist   Playlist? @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId])
+  @@unique([userId, playlistId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower    User     @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String             @unique
+  status               SubscriptionStatus @default(INACTIVE)
+  tier                 SubscriptionTier   @default(FREE)
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  stripeInvoiceId String   @unique
+  amountCents     Int
+  currency        String   @default("usd")
+  paidAt          DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ListeningHistory {
+  id                String   @id @default(uuid())
+  userId            String
+  songId            String
+  playedAt          DateTime @default(now())
+  durationPlayedSec Int
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song              Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([userId, playedAt])
+}
+
+model Lyrics {
+  id         String   @id @default(uuid())
+  songId     String   @unique
+  syncedJson Json
+  plainText  String
+
+  song       Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  userId    String
+  songId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([songId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Device {
+  id         String   @id @default(uuid())
+  userId     String
+  deviceName String
+  deviceType String
+  lastActive DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
