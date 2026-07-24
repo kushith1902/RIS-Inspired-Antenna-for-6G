@@ -1,44 +1,64 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Sidebar } from './components/layout/Sidebar';
-import { TopNav } from './components/layout/TopNav';
-import { RightQueue } from './components/layout/RightQueue';
-import { MusicPlayerBar } from './components/player/MusicPlayerBar';
-import { LyricsModal } from './components/player/LyricsModal';
-import { HomePage } from './pages/HomePage';
-import { SearchPage } from './pages/SearchPage';
-import { LibraryPage } from './pages/LibraryPage';
-import { PlaylistPage } from './pages/PlaylistPage';
+import React, { useState } from 'react';
+import { Navbar } from './components/layout/Navbar';
+import { ParticleBackground } from './components/layout/ParticleBackground';
+import { HeroSection } from './components/hero/HeroSection';
+import { AboutSection } from './components/about/AboutSection';
+import { SkillsSection } from './components/skills/SkillsSection';
+import { ProjectsSection } from './components/projects/ProjectsSection';
+import { ResearchSection } from './components/research/ResearchSection';
+import { ExperienceTimeline } from './components/experience/ExperienceTimeline';
+import { CertificationsSection } from './components/certifications/CertificationsSection';
+import { ServicesSection } from './components/services/ServicesSection';
+import { ContactSection } from './components/contact/ContactSection';
+import { Footer } from './components/layout/Footer';
+import { InteractiveTerminal } from './components/terminal/InteractiveTerminal';
+import { AdminDashboardModal } from './components/admin/AdminDashboardModal';
 
 export const App: React.FC = () => {
+  const [terminalOpen, setTerminalOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+
   return (
-    <BrowserRouter>
-      <div className="flex h-screen w-screen bg-spotify-darkbg text-white overflow-hidden">
-        {/* Left Collapsible Sidebar */}
-        <Sidebar />
+    <div className="relative bg-[#070B14] text-[#F8FAFC] min-h-screen selection:bg-cyan-400 selection:text-black">
+      
+      {/* Background Physics Particle & Blueprint Canvas */}
+      <ParticleBackground />
 
-        {/* Main Workspace Area */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-spotify-darkbg">
-          <TopNav />
-          <main className="flex-1 overflow-y-auto px-6 pt-6">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/library" element={<LibraryPage />} />
-              <Route path="/liked" element={<LibraryPage />} />
-              <Route path="/playlist/:id" element={<PlaylistPage />} />
-            </Routes>
-          </main>
-          {/* Bottom Persistent Audio Player */}
-          <MusicPlayerBar />
-        </div>
+      {/* Sticky Navigation Bar */}
+      <Navbar
+        onOpenTerminal={() => setTerminalOpen(true)}
+        onOpenAdmin={() => setAdminOpen(true)}
+      />
 
-        {/* Right Queue Drawer & Friend Activity */}
-        <RightQueue />
+      {/* Main Content Flow */}
+      <main className="relative z-10 space-y-8">
+        <HeroSection onOpenTerminal={() => setTerminalOpen(true)} />
+        <AboutSection />
+        <SkillsSection />
+        <ProjectsSection />
+        <ResearchSection />
+        <ExperienceTimeline />
+        <CertificationsSection />
+        <ServicesSection />
+        <ContactSection />
+      </main>
 
-        {/* Fullscreen Synced Lyrics Overlay */}
-        <LyricsModal />
-      </div>
-    </BrowserRouter>
+      {/* Global Footer */}
+      <Footer />
+
+      {/* Interactive Modals */}
+      <InteractiveTerminal
+        isOpen={terminalOpen}
+        onClose={() => setTerminalOpen(false)}
+      />
+
+      <AdminDashboardModal
+        isOpen={adminOpen}
+        onClose={() => setAdminOpen(false)}
+      />
+
+    </div>
   );
 };
+
+export default App;
