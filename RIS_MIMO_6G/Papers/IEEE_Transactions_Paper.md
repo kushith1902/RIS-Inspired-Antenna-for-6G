@@ -59,20 +59,16 @@ As demonstrated in Table I, while heuristic methods (GA, PSO) capture EM effects
 
 # III. Proposed System Architecture & Mathematical Model
 
-The end-to-end system architecture is depicted in Fig. 1. The transmitter consists of a $4 \times 4$ reconfigurable MIMO array transmitting DFRC waveforms to multiple mobile users (UEs) and tracking an ISAC radar target, assisted by a $16 \times 16$ element RIS metasurface panel.
+### A. System Architecture & Workflow
+The end-to-end system architecture and project execution workflow are illustrated in Fig. 1 and Fig. 2, respectively. The transmitter consists of a $4 \times 4$ reconfigurable MIMO array transmitting DFRC waveforms to multiple mobile users (UEs) and tracking an ISAC radar target, assisted by a $16 \times 16$ element RIS metasurface panel.
 
-```text
-  +-----------------------+        +--------------------------+        +-------------------------+
-  |  6G Multi-User &      |  --->  |  3GPP TR 38.901 3D SCM   |  --->  |  Channel Estimation     |
-  |  ISAC Radar Target    |        |  mmWave Channel Model    |        |  Matrix (Hd, G, Hr)     |
-  +-----------------------+        +--------------------------+        +-------------------------+
-                                                                                    |
-                                                                                    v
-  +-----------------------+        +--------------------------+        +-------------------------+
-  | Adaptive Beam Steering|  <---  |  RIS Diode Controller    |  <---  |  Physics-Informed DRL   |
-  | & Target Tracking     |        |  (0 - 5V Shift Regs)     |        |  Policy Network (PINN)  |
-  +-----------------------+        +--------------------------+        +-------------------------+
-```
+![Fig. 0A. System Architecture Diagram](file:///c:/Users/S%20Varsha/OneDrive/Desktop/website/RIS_MIMO_6G/Visualization/Figures/fig0_system_architecture.png)
+
+*Fig. 1. System Architecture Diagram of Proposed Physics-Informed DRL 6G ISAC Network.*
+
+![Fig. 0B. End-to-End Project Execution Flowchart](file:///c:/Users/S%20Varsha/OneDrive/Desktop/website/RIS_MIMO_6G/Visualization/Figures/fig0_project_flowchart.png)
+
+*Fig. 2. End-to-End Project Execution Flowchart from Antenna EM Design to Hardware Prototyping.*
 
 ### A. Electromagnetic Array Factor Model
 The spatial array factor $AF(\theta, \phi)$ for an $N_x \times N_y$ planar RIS panel with inter-element spacing $d_x = d_y = \lambda_0 / 2$ is formulated as:
@@ -138,18 +134,9 @@ $$L = \frac{c}{2 f_0 \sqrt{\varepsilon_{eff}}} - 2\Delta L = 3.398\text{ mm}$$
 
 Inset feed depth $y_0 = 1.156\text{ mm}$ matches the patch edge impedance ($245\ \Omega$) to a $50\ \Omega$ microstrip line.
 
-```
-       +-----------------------------------------+
-       |             Ground Plane (Wg)           |
-       |  +-----------------------------------+  |
-       |  |           Patch (W x L)           |  |
-       |  |     +---+               +---+     |  |
-       |  |     |   | Inset (y0)    |   |     |  |
-       |  +-----|---|---------------+---|-----+  |
-       |        |   | 50 Ohm Feed   |   |        |
-       |        +---+               +---+        |
-       +-----------------------------------------+
-```
+![Fig. 0C. Antenna & Metasurface Geometry Specifications](file:///c:/Users/S%20Varsha/OneDrive/Desktop/website/RIS_MIMO_6G/Visualization/Figures/fig0_antenna_geometry.png)
+
+*Fig. 3. Physical Geometry Specifications: (a) 28 GHz Inset-Fed Microstrip Patch Antenna; (b) 16x16 Reconfigurable RIS Metasurface Panel.*
 
 ### B. RIS Unit Cell Equivalent RLC Circuit
 Each unit cell features a metallic top patch coupled to a bottom ground plane through a Skyworks SMP1340 PIN diode or MACOM varactor diode. The input impedance $Z_{in}(f, C_v)$ is derived as:

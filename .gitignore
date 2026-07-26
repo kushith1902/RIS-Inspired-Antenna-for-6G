@@ -31,3 +31,10 @@ Thumbs.db
 
 # Prisma Generated Client if localized
 # server/prisma/migrations/
+
+# Python & JDK outputs
+__pycache__/
+*.pyc
+oracleJdk*/
+Models/*.zip
+*.npy
