@@ -3,9 +3,15 @@ OpenAI Gymnasium Compliant Environment: RIS_MIMO_ISAC_Env
 Physics-Informed Deep Reinforcement Learning for 6G RIS-MIMO ISAC Systems
 """
 
+import os
+import sys
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
+
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 from RIS_MIMO_6G.Channel.channel_3gpp import Channel3GPPTR38901
 from RIS_MIMO_6G.MIMO.mimo_array import MIMOArray28GHz
 

@@ -8,8 +8,14 @@ Compares Physics-Informed DRL (PPO, SAC, TD3) against Baselines:
 - Conventional Phased Array (No RIS)
 """
 
+import os
+import sys
 import numpy as np
 import scipy.optimize as opt
+
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 from RIS_MIMO_6G.Environment.ris_mimo_env import RISMIMOISACEnv
 
 class BaselineEvaluator:

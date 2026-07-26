@@ -4,9 +4,14 @@ Produces high-resolution 300 DPI vector-styled plots for journal manuscript.
 """
 
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 from RIS_MIMO_6G.Antenna.patch_antenna import PatchAntenna28GHz
 from RIS_MIMO_6G.RIS.ris_unit_cell import RISUnitCell28GHz, RISArray28GHz
 from RIS_MIMO_6G.MIMO.mimo_array import MIMOArray28GHz
@@ -74,7 +79,7 @@ class IEEEFigureGenerator:
         
         ax2 = ax1.twinx()
         color = 'darkorange'
-        ax2.set_ylabel('Reflection Magnitude $|\Gamma|$', color=color)
+        ax2.set_ylabel(r'Reflection Magnitude $|\Gamma|$', color=color)
         ax2.plot(Cv_sweep * 1e12, amps, color=color, linestyle='--', linewidth=1.8, label='Magnitude')
         ax2.tick_params(axis='y', labelcolor=color)
         ax2.set_ylim(0.8, 1.02)

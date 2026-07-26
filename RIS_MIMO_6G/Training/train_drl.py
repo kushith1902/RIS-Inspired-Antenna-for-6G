@@ -5,8 +5,13 @@ Incorporates Stable-Baselines3 and PyTorch Physics-Informed Feature Extractor
 """
 
 import os
+import sys
 import argparse
 import numpy as np
+
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 import torch
 from stable_baselines3 import PPO, SAC, TD3, DDPG
 from stable_baselines3.common.callbacks import BaseCallback
